@@ -1,5 +1,11 @@
 #!/bin/bash
 
-if [ ! -f "./deepspeech-0.1.0-models.tar.gz" ]; then
-  wget --no-check-certificate https://github.com/mozilla/DeepSpeech/releases/download/v0.1.0/deepspeech-0.1.0-models.tar.gz
-fi
+VERSION="0.9.3"
+
+for file in deepspeech-${VERSION}-models.{pbmm,scorer}; do
+  if [ ! -f "./${file}" ]; then
+    echo "${file} does not exist"
+    curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v${VERSION}/${file}
+  fi
+done
+

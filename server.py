@@ -17,11 +17,9 @@ app = Flask(__name__)
 CORS(app)
 
 deepspeech_executable = '/usr/local/bin/deepspeech'
-graph_file = '/app/models/output_graph.pb'
+model_file = '/app/models/deepspeech-0.9.3-models.pbmm'
+scorer_file = '/app/models/deepspeech-0.9.3-models.scorer'
 sound_file = '/app/output.wav'
-abc = '/app/models/alphabet.txt'
-lm_bin = '/app/models/lm.binary'
-lm_trie = '/app/models/trie'
 
 
 @app.errorhandler(Exception)
@@ -61,7 +59,7 @@ def convert_speech_to_text():
         if not os.path.isfile(stt_sound_file):
             return json.dumps({'error': 'could not convert file'}), 510, {'ContentType': 'application/javascript'}
 
-        process = subprocess.Popen([deepspeech_executable, graph_file, stt_sound_file, abc, lm_bin, lm_trie],
+        process = subprocess.Popen([deepspeech_executable, "--model", model_file, "--scorer", scorer_file, "--audio", stt_sound_file],
                                     stdout=subprocess.PIPE)
         out, err = process.communicate()
         if err is not None:
