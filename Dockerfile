@@ -1,11 +1,9 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 ENV LANG="C.UTF-8"
+ENV DEBIAN_FRONTEND="noninteractive"
 
-RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt xenial main restricted universe multiverse" > /etc/apt/sources.list && \
-    echo "deb mirror://mirrors.ubuntu.com/mirrors.txt xenial-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "deb mirror://mirrors.ubuntu.com/mirrors.txt xenial-security main restricted universe multiverse" >> /etc/apt/sources.list && \
-    apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         curl \
         python3 \
@@ -18,8 +16,7 @@ RUN echo "deb mirror://mirrors.ubuntu.com/mirrors.txt xenial main restricted uni
         sox \
         wget \
         && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean
 
 COPY . /app
 WORKDIR /app
@@ -27,18 +24,14 @@ WORKDIR /app
 RUN pip3 --no-cache-dir install --upgrade pip
 RUN pip3 install -r requirements.txt
 
-# setup natvie client
-RUN tar xvfJ native_client.tar.xz
+# Download native client and pre-trained English model files
+RUN ./dl.sh
+
+# setup native client
+RUN tar xvfJ native_client.amd64.cpu.linux.tar.xz
 RUN cp lib* /usr/local/lib/
 RUN cp deepspeech /usr/local/bin/
-RUN cp generate_trie /usr/local/bin/
 RUN ldconfig
-
-# copy nnet 0.1 files
-RUN ./dl.sh
-RUN tar xvzf deepspeech-0.1.0-models.tar.gz
-# remove after use
-RUN rm -f deepspeech-0.1.0-models.tar.gz
 
 EXPOSE 80
 
